@@ -1,35 +1,30 @@
 import { useState } from "react";
 import { useQuery } from "react-query";
-import {
-  Drawer,
-  LinearProgress,
-  Grid,
-  Badge,
-  createStyles,
-  IconButton,
-} from "@mui/material";
+import { Drawer, LinearProgress, Grid, Badge, IconButton } from "@mui/material";
 import { AddShoppingCartOutlined } from "@mui/icons-material";
 import Item from "../Components/Item";
 import Cart from "../Components/Cart";
-import { Col, Row } from "react-bootstrap";
+import { Col, Navbar, Row } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { makeStyles } from "@mui/styles";
 
-// const useStyles = createStyles({
-//   wrapper: {
-//     margin: 40,
-//   },
-//   iconBtn: {
-//     position: "fixed",
-//     zIndex: 100,
-//     right: 20,
-//     top: 20,
-//   },
-// });
+const useStyles = makeStyles({
+  wrapper: {
+    marginTop: 80,
+  },
+  iconBtn: {
+    position: "fixed",
+    zIndex: 100,
+    right: 20,
+    top: 10,
+  },
+});
 
 function Home() {
   const [cartOpen, setCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
-  // const classes = useStyles();
-
+  const classes = useStyles();
+  const navigate = useNavigate();
   async function getAllProducts() {
     const path = "https://fakestoreapi.com/products";
     const response = await fetch(path, {
@@ -61,6 +56,10 @@ function Home() {
     });
   };
 
+  const handleItemClick = (id) => {
+    navigate("/oneproduct", { state: id });
+  };
+
   const handleRemoveFromCart = (id) => {
     setCartItems((prev) =>
       prev.reduce((ack, item) => {
@@ -79,7 +78,7 @@ function Home() {
   return isLoading ? (
     <LinearProgress />
   ) : (
-    <div>
+    <div className={classes.wrapper}>
       <Drawer anchor="right" open={cartOpen} onClose={() => setCartOpen(false)}>
         <Cart
           cartItems={cartItems}
@@ -87,19 +86,25 @@ function Home() {
           removeFromCart={handleRemoveFromCart}
         />
       </Drawer>
-      <IconButton>
-        <Badge
-          badgeContent={getTotalItems(cartItems)}
-          color="error"
-          onClick={() => setCartOpen(true)}
-        >
-          <AddShoppingCartOutlined />
-        </Badge>
-      </IconButton>
+      <Navbar className="bg-warning mt-0" fixed="top">
+        <IconButton>
+          <Badge
+            badgeContent={getTotalItems(cartItems)}
+            color="error"
+            onClick={() => setCartOpen(true)}
+          >
+            <AddShoppingCartOutlined />
+          </Badge>
+        </IconButton>
+      </Navbar>
       <Row spacing={3} lg={3} xs={1}>
         {data?.map((item) => (
           <Col item key={item.id} sm={4} xs={12}>
-            <Item item={item} handleAddtoCart={handleAddToCart} />
+            <Item
+              item={item}
+              handleAddtoCart={handleAddToCart}
+              handleItemClick={handleItemClick}
+            />
           </Col>
         ))}
       </Row>

@@ -1,29 +1,73 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { Grid, ThemeProvider } from "@mui/material";
+import { Alert, Grid, Snackbar, ThemeProvider } from "@mui/material";
 import { BreakPointsTheme } from "../Components/BreakPointsTheme";
 import { useState } from "react";
-import { authenticate, isAuthenticated, register } from "../common";
+import { register } from "../common";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { UserValidator } from "../Validation";
 
 const Register = () => {
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstname, setFirstname] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [city, setCity] = useState("");
-  const [street, setStreet] = useState("");
-  const [number, setNumber] = useState("");
-  const [phone, setPhone] = useState("");
   const [success, setSuccess] = useState(false);
+
+  const [values, setValues] = useState({
+    email: "",
+    username: "",
+    password: "",
+    firstname: "",
+    lastname: "",
+    city: "",
+    street: "",
+    number: "",
+    phone: "",
+    errPosition: "",
+    errText: "",
+  });
+  const {
+    email,
+    username,
+    password,
+    firstname,
+    lastname,
+    city,
+    street,
+    number,
+    phone,
+    errPosition,
+    errText,
+  } = values;
+
+  // const [validation, setValidation] = useState({
+  //   email: "",
+  //   username: "",
+  //   password: "",
+  //   firstname: "",
+  //   lastname: "",
+  //   city: "",
+  //   street: "",
+  //   number: "",
+  //   phone: "",
+  //   invalid: false,
+  // });
 
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    const errorFound = UserValidator(
+      email,
+      username,
+      password,
+      firstname,
+      lastname,
+      city,
+      street,
+      number,
+      phone,
+      setValues
+    );
     const reqBody = {
       email: email,
       username: username,
@@ -35,37 +79,26 @@ const Register = () => {
       number: number,
       phone: phone,
     };
-    if (
-      email !== "" ||
-      password !== "" ||
-      firstname !== "" ||
-      lastname !== "" ||
-      city !== "" ||
-      street !== "" ||
-      number !== "" ||
-      phone !== ""
-    )
+    if (!errorFound)
       await register(reqBody).then((response) => {
-        // authenticate(response.body);
         if (response.status) {
           setSuccess(true);
+          console.log(response);
+          navigate("/login");
+        } else if (response.error) {
+          setValues((prev) => ({
+            ...prev,
+            errPosition: "hasError",
+            errText: response.error,
+          }));
         }
-        console.log(response);
-        navigate("/login");
       });
   };
-
-  // useEffect(() => {
-  //   if (isAuthenticated()) {
-  //     navigate("/login");
-  //   }
-  // }, []);
 
   return (
     <ThemeProvider theme={BreakPointsTheme}>
       <Grid
         container
-        width="100vw"
         height="auto"
         display="flex"
         flexDirection="column"
@@ -84,14 +117,9 @@ const Register = () => {
                 className="form-control defaultinput bg6"
                 style={{ borderRadius: "5px" }}
                 value={email}
-                // onChange={(e) =>
-                //   setEmail((prev) => ({
-                //     ...prev,
-                //     email: e.target.value,
-                //   }))
-                // }
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setValues(e.target.value)}
               />
+
               <Form.Text className="text-muted">
                 We'll never share your email with anyone else.
               </Form.Text>
@@ -104,13 +132,7 @@ const Register = () => {
                 className="form-control defaultinput bg6"
                 style={{ borderRadius: "5px" }}
                 value={username}
-                // onChange={(e) =>
-                //   setUsername((prev) => ({
-                //     ...prev,
-                //     username: e.target.value,
-                //   }))
-                // }
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setValues(e.target.value)}
               />
             </Form.Group>
 
@@ -121,13 +143,7 @@ const Register = () => {
                 className="form-control defaultinput bg6"
                 style={{ borderRadius: "5px" }}
                 value={password}
-                // onChange={(e) =>
-                //   setPassword((prev) => ({
-                //     ...prev,
-                //     password: e.target.value,
-                //   }))
-                // }
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => setValues(e.target.value)}
               />
             </Form.Group>
 
@@ -142,13 +158,7 @@ const Register = () => {
                   className="form-control defaultinput bg6"
                   style={{ borderRadius: "5px" }}
                   value={firstname}
-                  //   onChange={(e) =>
-                  //     setFirstname((prev) => ({
-                  //       ...prev,
-                  //       firstname: e.target.value,
-                  //     }))
-                  //   }
-                  onChange={(e) => setFirstname(e.target.value)}
+                  onChange={(e) => setValues(e.target.value)}
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formBasicLastName">
@@ -158,13 +168,7 @@ const Register = () => {
                   className="form-control defaultinput bg6"
                   style={{ borderRadius: "5px" }}
                   value={lastname}
-                  //   onChange={(e) =>
-                  //     setLastname((prev) => ({
-                  //       ...prev,
-                  //       lastname: e.target.value,
-                  //     }))
-                  //   }
-                  onChange={(e) => setLastname(e.target.value)}
+                  onChange={(e) => setValues(e.target.value)}
                 />
               </Form.Group>
             </Form.Group>
@@ -187,13 +191,7 @@ const Register = () => {
                     className="form-control defaultinput bg6"
                     style={{ borderRadius: "5px" }}
                     value={city}
-                    // onChange={(e) =>
-                    //   setCity((prev) => ({
-                    //     ...prev,
-                    //     city: e.target.value,
-                    //   }))
-                    // }
-                    onChange={(e) => setCity(e.target.value)}
+                    onChange={(e) => setValues(e.target.value)}
                   />
                 </Form.Group>
               </Form.Group>
@@ -204,13 +202,7 @@ const Register = () => {
                   className="form-control defaultinput bg6"
                   style={{ borderRadius: "5px" }}
                   value={street}
-                  //   onChange={(e) =>
-                  //     setStreet((prev) => ({
-                  //       ...prev,
-                  //       street: e.target.value,
-                  //     }))
-                  //   }
-                  onChange={(e) => setStreet(e.target.value)}
+                  onChange={(e) => setValues(e.target.value)}
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formBasicNumber">
@@ -220,13 +212,7 @@ const Register = () => {
                   className="form-control defaultinput bg6"
                   style={{ borderRadius: "5px" }}
                   value={number}
-                  //   onChange={(e) =>
-                  //     setNumber((prev) => ({
-                  //       ...prev,
-                  //       number: e.target.value,
-                  //     }))
-                  //   }
-                  onChange={(e) => setNumber(e.target.value)}
+                  onChange={(e) => setValues(e.target.value)}
                 />
               </Form.Group>
             </Form.Group>
@@ -238,13 +224,7 @@ const Register = () => {
                 className="form-control defaultinput bg6"
                 style={{ borderRadius: "5px" }}
                 value={phone}
-                // onChange={(e) =>
-                //   setPhone((prev) => ({
-                //     ...prev,
-                //     phone: e.target.value,
-                //   }))
-                // }
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setValues(e.target.value)}
               />
             </Form.Group>
 
@@ -253,6 +233,19 @@ const Register = () => {
             </Button>
           </Form>
         </Grid>
+
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          open={errPosition === "hasError"}
+          autoHideDuration={3000}
+          onClose={() =>
+            setValues((prev) => ({ ...prev, errPosition: "", errText: "" }))
+          }
+        >
+          <Alert severity="error" variant="filled">
+            {errText}
+          </Alert>
+        </Snackbar>
       </Grid>
     </ThemeProvider>
   );

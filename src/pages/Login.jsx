@@ -6,10 +6,14 @@ import { useState } from "react";
 import Input from "antd/es/input/Input";
 import { useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
+import { useEffect } from "react";
+import { LoginValidator } from "../Validation";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errPosition, setErrPosition] = useState("");
+  const [errText, setErrText] = useState("");
 
   const navigate = useNavigate();
   async function login(credentials) {
@@ -28,19 +32,35 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errorFound = LoginValidator(
+      username,
+      password,
+      setUsername,
+      setPassword
+    );
     const reqBody = {
       username,
       password,
     };
-    await login(reqBody)
-      .then((data) => {
-        localStorage.setItem("token", JSON.stringify(data));
-        navigate("/home");
-      })
-      .catch((err) => {
-        return err;
-      });
+    if (!errorFound) {
+      await login(reqBody)
+        .then((data) => {
+          console.log(data);
+          localStorage.setItem("token", JSON.stringify(data));
+          localStorage.setItem("username", username);
+          localStorage.setItem("password", password);
+          navigate("/home");
+        })
+        .catch((err) => {
+          return err;
+        });
+    }
   };
+
+  useEffect(() => {
+    setUsername(localStorage.getItem("username"));
+    setPassword(localStorage.getItem("password"));
+  }, []);
   return (
     <ThemeProvider theme={BreakPointsTheme}>
       <Grid
@@ -59,7 +79,9 @@ const Login = () => {
               className="form-control defaultinput bg6"
               style={{ borderRadius: "5px" }}
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
             />
           </Form.Group>
           <Form.Group className="mb-3" controlId="formBasicEmail">
@@ -69,7 +91,9 @@ const Login = () => {
               className="form-control defaultinput bg6"
               style={{ borderRadius: "5px" }}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
             />
           </Form.Group>
 

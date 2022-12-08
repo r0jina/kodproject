@@ -1,6 +1,7 @@
 import { Button } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useNavigate } from "react-router-dom";
+import StarIcon from "@mui/icons-material/Star";
 
 const useStyles = makeStyles({
   wrapper: {
@@ -27,23 +28,27 @@ const useStyles = makeStyles({
   },
 });
 
-const Item = ({ handleAddtoCart, item }) => {
+const Item = ({ handleAddtoCart, item, handleItemClick }) => {
   const classes = useStyles();
   const navigate = useNavigate();
 
-  const handleItemClick = (id) => {
-    navigate("/oneproduct", { state: id });
-  };
-
   return (
-    <div className={classes.wrapper} onClick={() => handleItemClick(item.id)}>
-      <img src={item.image} alt="" />
-      <div className={classes.div}>
-        <h3>{item.title}</h3>
-        <p>{item.description}</p>
-        <h3>{item.price}</h3>
-        <p>{item.rating.rate}</p>
-        <p>{item.rating.count}</p>
+    <div className={classes.wrapper}>
+      <div onClick={() => handleItemClick(item.id)}>
+        <img src={item.image} alt="" width="100%" />
+        <div className={classes.div}>
+          <h3>{item.title}</h3>
+          <p>{item.description}</p>
+          <h3>${item.price}</h3>
+          <div className="d-flex align-items-center">
+            <p className="mb-0">ratings :</p>
+            <p className="mb-0">{item.rating.rate}</p>
+          </div>
+          <div className="d-flex align-items-center">
+            <p className="mb-0">count :</p>
+            <p className="mb-0">{item.rating.count}</p>
+          </div>
+        </div>
       </div>
       <Button onClick={() => handleAddtoCart(item)} className={classes.btn}>
         Add to Cart

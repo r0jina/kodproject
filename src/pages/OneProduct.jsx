@@ -52,7 +52,7 @@ const OneProduct = () => {
       </Grid>
       <Grid item lg={8} marginTop="auto" marginBottom="auto">
         <div>{oneproduct.title}</div>
-        <div>{oneproduct.price}</div>
+        <div>${oneproduct.price}</div>
         <div>{oneproduct.description}</div>
         <div>{oneproduct.category}</div>
         {/* <div>{oneproduct.rating.rate}</div>
